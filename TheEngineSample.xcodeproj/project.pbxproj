@@ -50,11 +50,6 @@
 		4C50FF141B758B5B00E56620 /* Southern Rock Drums.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 4C50FF0F1B758B5B00E56620 /* Southern Rock Drums.m4a */; };
 		4C50FF151B758B5B00E56620 /* Southern Rock Organ.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 4C50FF101B758B5B00E56620 /* Southern Rock Organ.m4a */; };
 		4C50FF161B758B5B00E56620 /* Southern Rock Organ.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 4C50FF101B758B5B00E56620 /* Southern Rock Organ.m4a */; };
-		4C50FF2E1B75936000E56620 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C50FF251B75936000E56620 /* AppDelegate.m */; };
-		4C50FF301B75936000E56620 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4C50FF291B75936000E56620 /* Images.xcassets */; };
-		4C50FF321B75936000E56620 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C50FF2B1B75936000E56620 /* main.m */; };
-		4C50FF331B75936000E56620 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C50FF2D1B75936000E56620 /* ViewController.m */; };
-		4C50FF361B75937300E56620 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C50FF341B75937300E56620 /* MainMenu.xib */; };
 		4C7C67F416F1606600721E60 /* libTheAmazingAudioEngine.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C7C67F116F1605A00721E60 /* libTheAmazingAudioEngine.a */; };
 		4C7C680916F1609800721E60 /* AEExpanderFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C7C67F816F1609800721E60 /* AEExpanderFilter.m */; };
 		4C7C680A16F1609800721E60 /* AELimiter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C7C67FA16F1609800721E60 /* AELimiter.m */; };
@@ -91,6 +86,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4C215CEB1523A7D500D36CAD;
 			remoteInfo = TheAmazingAudioEngine;
+		};
+		6D8817B01D814FB100CF51CB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4C7C67EC16F1605A00721E60 /* TheAmazingAudioEngine.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 17BB5B401BECD101007A2892;
+			remoteInfo = "TheAmazingAudioEngine tvOS";
 		};
 		7A8D22EF1B72AF250054D2B2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -155,14 +157,6 @@
 		4C50FF0E1B758B5B00E56620 /* Organ Run.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Organ Run.m4a"; sourceTree = "<group>"; };
 		4C50FF0F1B758B5B00E56620 /* Southern Rock Drums.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Southern Rock Drums.m4a"; sourceTree = "<group>"; };
 		4C50FF101B758B5B00E56620 /* Southern Rock Organ.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Southern Rock Organ.m4a"; sourceTree = "<group>"; };
-		4C50FF241B75936000E56620 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = "TheEngineSample/OS X/AppDelegate.h"; sourceTree = SOURCE_ROOT; };
-		4C50FF251B75936000E56620 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = "TheEngineSample/OS X/AppDelegate.m"; sourceTree = SOURCE_ROOT; };
-		4C50FF291B75936000E56620 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "TheEngineSample/OS X/Images.xcassets"; sourceTree = SOURCE_ROOT; };
-		4C50FF2A1B75936000E56620 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = "TheEngineSample/OS X/Info.plist"; sourceTree = SOURCE_ROOT; };
-		4C50FF2B1B75936000E56620 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = "TheEngineSample/OS X/main.m"; sourceTree = SOURCE_ROOT; };
-		4C50FF2C1B75936000E56620 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ViewController.h; path = "TheEngineSample/OS X/ViewController.h"; sourceTree = SOURCE_ROOT; };
-		4C50FF2D1B75936000E56620 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ViewController.m; path = "TheEngineSample/OS X/ViewController.m"; sourceTree = SOURCE_ROOT; };
-		4C50FF351B75937300E56620 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = "TheEngineSample/OS X/Base.lproj/MainMenu.xib"; sourceTree = SOURCE_ROOT; };
 		4C7C67EC16F1605A00721E60 /* TheAmazingAudioEngine.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = TheAmazingAudioEngine.xcodeproj; sourceTree = "<group>"; };
 		4C7C67F716F1609800721E60 /* AEExpanderFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AEExpanderFilter.h; sourceTree = "<group>"; };
 		4C7C67F816F1609800721E60 /* AEExpanderFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AEExpanderFilter.m; sourceTree = "<group>"; };
@@ -214,9 +208,8 @@
 		4C0C247A1599FADD00D23E13 = {
 			isa = PBXGroup;
 			children = (
-				4C7C67F516F1608300721E60 /* The Amazing Audio Engine */,
 				4C0C248F1599FADD00D23E13 /* TheEngineSample */,
-				7A8D22F61B72AF5C0054D2B2 /* TheEngineSampleOSX */,
+				4C7C67F516F1608300721E60 /* The Amazing Audio Engine */,
 				4C50FED41B75860100E56620 /* Common */,
 				4C0C24861599FADD00D23E13 /* Products */,
 			);
@@ -330,6 +323,7 @@
 			children = (
 				4C7C67F116F1605A00721E60 /* libTheAmazingAudioEngine.a */,
 				7A8D22F01B72AF250054D2B2 /* libTheAmazingAudioEngine OS X.a */,
+				6D8817B11D814FB100CF51CB /* libTheAmazingAudioEngine tvOS.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -374,29 +368,6 @@
 				4C7C680816F1609800721E60 /* TPCircularBuffer.h */,
 			);
 			path = TPCircularBuffer;
-			sourceTree = "<group>";
-		};
-		7A8D22F61B72AF5C0054D2B2 /* TheEngineSampleOSX */ = {
-			isa = PBXGroup;
-			children = (
-				4C50FF241B75936000E56620 /* AppDelegate.h */,
-				4C50FF251B75936000E56620 /* AppDelegate.m */,
-				4C50FF2C1B75936000E56620 /* ViewController.h */,
-				4C50FF2D1B75936000E56620 /* ViewController.m */,
-				7A8D22F71B72AF5C0054D2B2 /* Supporting Files */,
-			);
-			path = TheEngineSampleOSX;
-			sourceTree = "<group>";
-		};
-		7A8D22F71B72AF5C0054D2B2 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				4C50FF2A1B75936000E56620 /* Info.plist */,
-				4C50FF2B1B75936000E56620 /* main.m */,
-				4C50FF341B75937300E56620 /* MainMenu.xib */,
-				4C50FF291B75936000E56620 /* Images.xcassets */,
-			);
-			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -485,6 +456,13 @@
 			remoteRef = 4C7C67F016F1605A00721E60 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		6D8817B11D814FB100CF51CB /* libTheAmazingAudioEngine tvOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libTheAmazingAudioEngine tvOS.a";
+			remoteRef = 6D8817B01D814FB100CF51CB /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		7A8D22F01B72AF250054D2B2 /* libTheAmazingAudioEngine OS X.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -513,10 +491,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4C50FF141B758B5B00E56620 /* Southern Rock Drums.m4a in Resources */,
-				4C50FF301B75936000E56620 /* Images.xcassets in Resources */,
 				4C50FF121B758B5B00E56620 /* Organ Run.m4a in Resources */,
 				4C50FF161B758B5B00E56620 /* Southern Rock Organ.m4a in Resources */,
-				4C50FF361B75937300E56620 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -564,8 +540,6 @@
 				4C2933AC1BB2814400AAED25 /* AEPeakLimiterFilter.m in Sources */,
 				7A532D2B1B7C6FA8006056DB /* AEPlaythroughChannel.m in Sources */,
 				4C2933B01BB2814400AAED25 /* AEVarispeedFilter.m in Sources */,
-				4C50FF331B75936000E56620 /* ViewController.m in Sources */,
-				4C50FF321B75936000E56620 /* main.m in Sources */,
 				4C29339A1BB2814400AAED25 /* AEDelayFilter.m in Sources */,
 				7AFFB76C1B75307500892749 /* AERecorder.m in Sources */,
 				7A8D23361B72B5170054D2B2 /* TPCircularBuffer+AudioBufferList.c in Sources */,
@@ -577,7 +551,6 @@
 				4C29339E1BB2814400AAED25 /* AEDynamicsProcessorFilter.m in Sources */,
 				7A8D23331B72B4E20054D2B2 /* AEExpanderFilter.m in Sources */,
 				7A8D23321B72B4DD0054D2B2 /* AELimiter.m in Sources */,
-				4C50FF2E1B75936000E56620 /* AppDelegate.m in Sources */,
 				4C2933AA1BB2814400AAED25 /* AEParametricEqFilter.m in Sources */,
 				4C2933A01BB2814400AAED25 /* AEHighPassFilter.m in Sources */,
 				4C29339C1BB2814400AAED25 /* AEDistortionFilter.m in Sources */,
@@ -600,17 +573,6 @@
 			targetProxy = 7A8D231A1B72B02E0054D2B2 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
-
-/* Begin PBXVariantGroup section */
-		4C50FF341B75937300E56620 /* MainMenu.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				4C50FF351B75937300E56620 /* Base */,
-			);
-			name = MainMenu.xib;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		4C0C24A41599FADD00D23E13 /* Debug */ = {
