@@ -36,11 +36,21 @@ freely, subject to the following restrictions:
 Changelog
 ---------
 
-### In-development version: 1.5.6
+### Under development: 1.5.8
+
+- Fixed a crash that can occur with rapid adding/removing of channels
+
+### 1.5.7
+
+- Added [Realtime Watchdog](https://github.com/TheAmazingAudioEngine/RealtimeWatchdog)
+- Fixed a spurious audio system restart issue
+
+### 1.5.6
 
 - Replaced internal use of synchronous cross-thread messaging with async messaging, to avoid risk of deadlocks and other timing issues
 - Fixed a crash that can occur when input format is changing
 - Watch for audio unit stream format changes in order to better react to sample rate changes
+- Implemented AEMessageQueue message exchange blocks
 
 ### 1.5.5
 
