@@ -500,14 +500,14 @@ static OSStatus inputAvailableCallback(void *inRefCon, AudioUnitRenderActionFlag
     THIS->_lastAvailableInputFrames = inNumberFrames;
     THIS->_lastInputBusTimeStamp = *inTimeStamp;
     
-#if TARGET_OS_IPHONE
-    if ( !THIS->_outputEnabled ) {
-        // If output isn't enabled, service the input from here
-        serviceAudioInput(THIS, NULL, inTimeStamp, THIS->_lastAvailableInputFrames);
-    }
-#else
-    serviceAudioInput(THIS, NULL, inTimeStamp, THIS->_lastAvailableInputFrames);
-#endif
+//#if TARGET_OS_IPHONE
+//    if ( !THIS->_outputEnabled ) {
+//        // If output isn't enabled, service the input from here
+//        serviceAudioInput(THIS, NULL, inTimeStamp, THIS->_lastAvailableInputFrames);
+//    }
+//#else
+//    serviceAudioInput(THIS, NULL, inTimeStamp, THIS->_lastAvailableInputFrames);
+//#endif
     
     return noErr;
 }
@@ -587,8 +587,8 @@ static void serviceAudioInput(__unsafe_unretained AEAudioController * THIS, cons
     }
     
 #ifdef DEBUG
-    if ( !THIS->_firstRenderTime ) THIS->_firstRenderTime = AECurrentTimeInHostTicks();
-    THIS->_renderStartTime[1] = AECurrentTimeInHostTicks();
+//    if ( !THIS->_firstRenderTime ) THIS->_firstRenderTime = AECurrentTimeInHostTicks();
+//    THIS->_renderStartTime[1] = AECurrentTimeInHostTicks();
 #endif
     
     AudioTimeStamp timestamp;
@@ -637,7 +637,7 @@ static void serviceAudioInput(__unsafe_unretained AEAudioController * THIS, cons
 #if TARGET_OS_IPHONE
         AudioUnit inputAudioUnit = THIS->_ioAudioUnit;
 #else
-        AudioUnit inputAudioUnit = THIS->_iAudioUnit;
+//        AudioUnit inputAudioUnit = THIS->_iAudioUnit;
 #endif
         OSStatus err = AudioUnitRender(inputAudioUnit, &flags, &timestamp, 1, inNumberFrames, THIS->_inputAudioBufferList);
         if ( !AECheckOSStatus(err, "AudioUnitRender") ) {
@@ -647,13 +647,13 @@ static void serviceAudioInput(__unsafe_unretained AEAudioController * THIS, cons
         if ( THIS->_inputAudioBufferList->mBuffers[0].mDataByteSize != bytesPerBuffer ) {
             UInt32 actualFrameCount = THIS->_inputAudioBufferList->mBuffers[0].mDataByteSize / THIS->_rawInputAudioDescription.mBytesPerFrame;
 #ifdef DEBUG
-            static BOOL reportedBufferMismatch = NO;
-            if ( !reportedBufferMismatch ) {
-                reportedBufferMismatch = YES;
-                NSLog(@"TAAE: Mismatch between received input buffer size (%d frames) and reported frame count (%d).",
-                      (int)actualFrameCount,
-                      (int)inNumberFrames);
-            }
+//            static BOOL reportedBufferMismatch = NO;
+//            if ( !reportedBufferMismatch ) {
+//                reportedBufferMismatch = YES;
+//                NSLog(@"TAAE: Mismatch between received input buffer size (%d frames) and reported frame count (%d).",
+//                      (int)actualFrameCount,
+//                      (int)inNumberFrames);
+//            }
 #endif
             inNumberFrames = actualFrameCount;
         }
@@ -694,6 +694,7 @@ static void serviceAudioInput(__unsafe_unretained AEAudioController * THIS, cons
                 audioBufferList->mBuffers[i].mDataByteSize = inNumberFrames * entry->audioDescription.mBytesPerFrame;
             }
             
+            // pass audioData from THIS->_inputAudioBufferList(mono) to entry->audioBufferList(stereo)
             result = inputAudioProducer((void*)&arg, audioBufferList, &inNumberFrames);
             
             // Pass audio to callbacks
@@ -717,64 +718,64 @@ static void serviceAudioInput(__unsafe_unretained AEAudioController * THIS, cons
     }
     
 #ifdef DEBUG
-    uint64_t renderEndTime = AECurrentTimeInHostTicks();
-    THIS->_renderDuration[1] = renderEndTime - THIS->_renderStartTime[1];
+//    uint64_t renderEndTime = AECurrentTimeInHostTicks();
+//    THIS->_renderDuration[1] = renderEndTime - THIS->_renderStartTime[1];
 #endif
 }
 
 #ifdef DEBUG
 
 // Performance monitoring in debug mode
-static OSStatus ioUnitRenderNotifyCallback(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inBusNumber, UInt32 inNumberFrames, AudioBufferList *ioData) {
-    
-    __unsafe_unretained AEAudioController * THIS = (__bridge AEAudioController*)inRefCon;
-    
-    if ( inBusNumber == 0 && *ioActionFlags & kAudioUnitRenderAction_PreRender ) {
-        // Remember the time we started rendering
-        if ( !THIS->_firstRenderTime ) THIS->_firstRenderTime = AECurrentTimeInHostTicks();
-        THIS->_renderStartTime[0] = AECurrentTimeInHostTicks();
-        
-    } else if ( inBusNumber == 0 && *ioActionFlags & kAudioUnitRenderAction_PostRender ) {
-        // Calculate total render duration
-        uint64_t renderEndTime = AECurrentTimeInHostTicks();
-        THIS->_renderDuration[0] = renderEndTime - THIS->_renderStartTime[MIN(1, inBusNumber)];
-        
-        if ( THIS->_renderDuration[0] && (!THIS->_inputEnabled || THIS->_renderDuration[1]) ) {
-            // Got render duration for all buses
-            uint64_t duration = THIS->_renderDuration[0] + THIS->_renderDuration[1];
-            THIS->_renderDuration[0] = THIS->_renderDuration[1] = THIS->_renderStartTime[0] = THIS->_renderStartTime[1] = 0;
-            // Warn if total render takes longer than 50% of buffer duration (gives us a bit of headroom)
-            NSTimeInterval threshold = THIS->_currentBufferDuration * 0.5;
-            if ( duration >= AEHostTicksFromSeconds(threshold)
-                    && (renderEndTime-THIS->_firstRenderTime) > AEHostTicksFromSeconds(10.0)
-                    && (renderEndTime-THIS->_lastReportTime) > AEHostTicksFromSeconds(30.0) ) {
-                NSTimeInterval durationSeconds = AESecondsFromHostTicks(duration);
-                NSLog(@"TAAE: Warning: render took too long (%lfs, %0.2lf%% of budget). Expect glitches.",
-                      durationSeconds, (durationSeconds/THIS->_currentBufferDuration) * 100.0);
-                THIS->_lastReportTime = renderEndTime;
-            }
-        
-#ifdef TAAE_REPORT_RENDER_TIME
-            // Define the above symbol to report ongoing (max) render time every second
-            static uint64_t max = 0;
-            static uint64_t lastReport = 0;
-            if ( duration > max ) {
-                max = duration;
-            }
-            if ( renderEndTime > lastReport + AEHostTicksFromSeconds(1.0) ) {
-                NSTimeInterval value = AESecondsFromHostTicks(max);
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    NSLog(@"TAAE: Render time %lfs, %0.2lf%% of budget)", value, (value/THIS->_currentBufferDuration)*100.0);
-                });
-                lastReport = renderEndTime;
-                max = 0;
-            }
-#endif
-        }
-    }
-    
-    return noErr;
-}
+//static OSStatus ioUnitRenderNotifyCallback(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inBusNumber, UInt32 inNumberFrames, AudioBufferList *ioData) {
+//    
+//    __unsafe_unretained AEAudioController * THIS = (__bridge AEAudioController*)inRefCon;
+//    
+//    if ( inBusNumber == 0 && *ioActionFlags & kAudioUnitRenderAction_PreRender ) {
+//        // Remember the time we started rendering
+//        if ( !THIS->_firstRenderTime ) THIS->_firstRenderTime = AECurrentTimeInHostTicks();
+//        THIS->_renderStartTime[0] = AECurrentTimeInHostTicks();
+//        
+//    } else if ( inBusNumber == 0 && *ioActionFlags & kAudioUnitRenderAction_PostRender ) {
+//        // Calculate total render duration
+//        uint64_t renderEndTime = AECurrentTimeInHostTicks();
+//        THIS->_renderDuration[0] = renderEndTime - THIS->_renderStartTime[MIN(1, inBusNumber)];
+//        
+//        if ( THIS->_renderDuration[0] && (!THIS->_inputEnabled || THIS->_renderDuration[1]) ) {
+//            // Got render duration for all buses
+//            uint64_t duration = THIS->_renderDuration[0] + THIS->_renderDuration[1];
+//            THIS->_renderDuration[0] = THIS->_renderDuration[1] = THIS->_renderStartTime[0] = THIS->_renderStartTime[1] = 0;
+//            // Warn if total render takes longer than 50% of buffer duration (gives us a bit of headroom)
+//            NSTimeInterval threshold = THIS->_currentBufferDuration * 0.5;
+//            if ( duration >= AEHostTicksFromSeconds(threshold)
+//                    && (renderEndTime-THIS->_firstRenderTime) > AEHostTicksFromSeconds(10.0)
+//                    && (renderEndTime-THIS->_lastReportTime) > AEHostTicksFromSeconds(30.0) ) {
+//                NSTimeInterval durationSeconds = AESecondsFromHostTicks(duration);
+//                NSLog(@"TAAE: Warning: render took too long (%lfs, %0.2lf%% of budget). Expect glitches.",
+//                      durationSeconds, (durationSeconds/THIS->_currentBufferDuration) * 100.0);
+//                THIS->_lastReportTime = renderEndTime;
+//            }
+//        
+//#ifdef TAAE_REPORT_RENDER_TIME
+//            // Define the above symbol to report ongoing (max) render time every second
+//            static uint64_t max = 0;
+//            static uint64_t lastReport = 0;
+//            if ( duration > max ) {
+//                max = duration;
+//            }
+//            if ( renderEndTime > lastReport + AEHostTicksFromSeconds(1.0) ) {
+//                NSTimeInterval value = AESecondsFromHostTicks(max);
+//                dispatch_async(dispatch_get_main_queue(), ^{
+//                    NSLog(@"TAAE: Render time %lfs, %0.2lf%% of budget)", value, (value/THIS->_currentBufferDuration)*100.0);
+//                });
+//                lastReport = renderEndTime;
+//                max = 0;
+//            }
+//#endif
+//        }
+//    }
+//    
+//    return noErr;
+//}
 
 #endif
 
@@ -2605,7 +2606,7 @@ static void audioUnitStreamFormatChanged(void *inRefCon, AudioUnit inUnit, Audio
 #if TARGET_OS_IPHONE
         componentSubType = kAudioUnitSubType_RemoteIO;
 #else
-        componentSubType = kAudioUnitSubType_DefaultOutput;
+//        componentSubType = kAudioUnitSubType_DefaultOutput;
 #endif
     }
     
@@ -2632,23 +2633,23 @@ static void audioUnitStreamFormatChanged(void *inRefCon, AudioUnit inUnit, Audio
 
 #ifdef DEBUG
     // Add a render notify to the top audio unit, for the purposes of performance profiling
-    AECheckOSStatus(AudioUnitAddRenderNotify(_ioAudioUnit, &ioUnitRenderNotifyCallback, (__bridge void*)self), "AudioUnitAddRenderNotify");
+//    AECheckOSStatus(AudioUnitAddRenderNotify(_ioAudioUnit, &ioUnitRenderNotifyCallback, (__bridge void*)self), "AudioUnitAddRenderNotify");
 #endif
     
 #if !TARGET_OS_IPHONE
-    if ( _inputEnabled ) {
-        // Initialize the audio unit for OSX input
-        AudioComponentDescription i_desc = {
-            .componentType = kAudioUnitType_Output,
-            .componentSubType = kAudioUnitSubType_HALOutput,
-            .componentManufacturer = kAudioUnitManufacturer_Apple,
-            .componentFlags = 0,
-            .componentFlagsMask = 0
-        };
-        
-        AudioComponent inputComponent = AudioComponentFindNext(NULL, &i_desc);
-        AECheckOSStatus(AudioComponentInstanceNew(inputComponent, &_iAudioUnit), "AudioComponentInstanceNew");
-    }
+//    if ( _inputEnabled ) {
+//        // Initialize the audio unit for OSX input
+//        AudioComponentDescription i_desc = {
+//            .componentType = kAudioUnitType_Output,
+//            .componentSubType = kAudioUnitSubType_HALOutput,
+//            .componentManufacturer = kAudioUnitManufacturer_Apple,
+//            .componentFlags = 0,
+//            .componentFlagsMask = 0
+//        };
+//        
+//        AudioComponent inputComponent = AudioComponentFindNext(NULL, &i_desc);
+//        AECheckOSStatus(AudioComponentInstanceNew(inputComponent, &_iAudioUnit), "AudioComponentInstanceNew");
+//    }
 #endif
     
     [self configureAudioUnit];
@@ -2809,81 +2810,81 @@ static void audioUnitStreamFormatChanged(void *inRefCon, AudioUnit inUnit, Audio
         AECheckOSStatus(result, "AudioUnitSetProperty(kAudioOutputUnitProperty_EnableIO)");
     }
 #else
-    if ( _inputEnabled ) {
-        // Enable input for OSX
-        UInt32 enableFlag = 1;
-        UInt32 disableFlag = 0;
-        AudioUnitScope outputBus = 0;
-        AudioUnitScope inputBus = 1;
-        
-        OSStatus result;
-        
-        // Enable input and disable output on the audio unit
-        result = AudioUnitSetProperty(_iAudioUnit, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Input, inputBus, &enableFlag, sizeof(enableFlag));
-        AECheckOSStatus(result, "AudioUnitSetProperty(kAudioOutputUnitProperty_EnableIO)");
-        
-        result = AudioUnitSetProperty(_iAudioUnit, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Output, outputBus, &disableFlag, sizeof(disableFlag));
-        AECheckOSStatus(result, "AudioUnitSetProperty(kAudioOutputUnitProperty_EnableIO)");
-        
-        // Get the system's default input device
-        AudioDeviceID defaultDevice = kAudioDeviceUnknown;
-        UInt32 propertySize = sizeof(defaultDevice);
-        AudioObjectPropertyAddress defaultDeviceProperty = {
-            .mSelector = kAudioHardwarePropertyDefaultInputDevice,
-            .mScope = kAudioObjectPropertyScopeGlobal,
-            .mElement = kAudioObjectPropertyElementMaster
-        };
-        result = AudioObjectGetPropertyData(kAudioObjectSystemObject, &defaultDeviceProperty, 0, NULL, &propertySize, &defaultDevice);
-        AECheckOSStatus(result, "AudioObjectGetPropertyData(kAudioObjectSystemObject)");
-        
-        // Set the sample rate of the input device to the output samplerate (if possible)
-        AudioValueRange inputSampleRate;
-        inputSampleRate.mMinimum = _audioDescription.mSampleRate;
-        inputSampleRate.mMaximum = _audioDescription.mSampleRate;
-        defaultDeviceProperty.mSelector = kAudioDevicePropertyNominalSampleRate;
-        result = AudioObjectSetPropertyData(defaultDevice, &defaultDeviceProperty, 0, NULL, sizeof(inputSampleRate), &inputSampleRate);
-        
-        BOOL matchingSampleRates = ( result != kAudioCodecUnsupportedFormatError );
-        AECheckOSStatus(result, "AudioObjectSetPropertyData(kAudioDevicePropertyNominalSampleRate)");
-        
-        // Set the input device to the system's default input device
-        result = AudioUnitSetProperty(_iAudioUnit, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global, outputBus, &defaultDevice, sizeof(defaultDevice));
-        AECheckOSStatus(result, "AudioUnitSetProperty(kAudioOutputUnitProperty_CurrentDevice)");
-    
-        // Set input unit ASBD output to match the hardware input ASBD
-        propertySize = sizeof(AudioStreamBasicDescription);
-        result = AudioUnitGetProperty(_iAudioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, inputBus, &_rawInputAudioDescription, &propertySize);
-        AECheckOSStatus(result, "AudioUnitGetProperty(kAudioUnitProperty_StreamFormat)");
-        
-        if ( matchingSampleRates ) {
-            _rawInputAudioDescription.mSampleRate = _audioDescription.mSampleRate;
-        } else {
-            defaultDeviceProperty.mSelector = kAudioDevicePropertyNominalSampleRate;
-            UInt32 deviceSampleRateSize = sizeof(Float64);
-            Float64 deviceSampleRate;
-            result = AudioObjectGetPropertyData(defaultDevice, &defaultDeviceProperty, 0, NULL, &deviceSampleRateSize, &deviceSampleRate);
-            AECheckOSStatus(result, "AudioObjectGetPropertyData(kAudioDevicePropertyNominalSampleRate)");
-            
-            _rawInputAudioDescription.mSampleRate = deviceSampleRate;
-            
-            NSLog(@"TAAE: Warning: could not set hardware input sample rate (%.f Hz) to same sample rate as output (%.f Hz). Performing on-the-fly sample rate conversion.", deviceSampleRate, _audioDescription.mSampleRate);
-        }
-        
-        propertySize = sizeof(AudioStreamBasicDescription);
-        result = AudioUnitSetProperty(_iAudioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, inputBus, &_rawInputAudioDescription, propertySize);
-        AECheckOSStatus(result, "AudioUnitSetProperty(kAudioUnitProperty_StreamFormat)");
-        
-        // Register a callback to receive audio
-        AURenderCallbackStruct inRenderProc;
-        inRenderProc.inputProc = &inputAvailableCallback;
-        inRenderProc.inputProcRefCon = (__bridge void *)self;
-        result = AudioUnitSetProperty(_iAudioUnit, kAudioOutputUnitProperty_SetInputCallback, kAudioUnitScope_Global, 0, &inRenderProc, sizeof(inRenderProc));
-        AECheckOSStatus(result, "AudioUnitSetProperty(kAudioOutputUnitProperty_SetInputCallback)");
-        
-        // Initialize the input audio unit
-        result = AudioUnitInitialize(_iAudioUnit);
-        AECheckOSStatus(result, "AudioUnitInitialize");
-    }
+//    if ( _inputEnabled ) {
+//        // Enable input for OSX
+//        UInt32 enableFlag = 1;
+//        UInt32 disableFlag = 0;
+//        AudioUnitScope outputBus = 0;
+//        AudioUnitScope inputBus = 1;
+//        
+//        OSStatus result;
+//        
+//        // Enable input and disable output on the audio unit
+//        result = AudioUnitSetProperty(_iAudioUnit, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Input, inputBus, &enableFlag, sizeof(enableFlag));
+//        AECheckOSStatus(result, "AudioUnitSetProperty(kAudioOutputUnitProperty_EnableIO)");
+//        
+//        result = AudioUnitSetProperty(_iAudioUnit, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Output, outputBus, &disableFlag, sizeof(disableFlag));
+//        AECheckOSStatus(result, "AudioUnitSetProperty(kAudioOutputUnitProperty_EnableIO)");
+//        
+//        // Get the system's default input device
+//        AudioDeviceID defaultDevice = kAudioDeviceUnknown;
+//        UInt32 propertySize = sizeof(defaultDevice);
+//        AudioObjectPropertyAddress defaultDeviceProperty = {
+//            .mSelector = kAudioHardwarePropertyDefaultInputDevice,
+//            .mScope = kAudioObjectPropertyScopeGlobal,
+//            .mElement = kAudioObjectPropertyElementMaster
+//        };
+//        result = AudioObjectGetPropertyData(kAudioObjectSystemObject, &defaultDeviceProperty, 0, NULL, &propertySize, &defaultDevice);
+//        AECheckOSStatus(result, "AudioObjectGetPropertyData(kAudioObjectSystemObject)");
+//        
+//        // Set the sample rate of the input device to the output samplerate (if possible)
+//        AudioValueRange inputSampleRate;
+//        inputSampleRate.mMinimum = _audioDescription.mSampleRate;
+//        inputSampleRate.mMaximum = _audioDescription.mSampleRate;
+//        defaultDeviceProperty.mSelector = kAudioDevicePropertyNominalSampleRate;
+//        result = AudioObjectSetPropertyData(defaultDevice, &defaultDeviceProperty, 0, NULL, sizeof(inputSampleRate), &inputSampleRate);
+//        
+//        BOOL matchingSampleRates = ( result != kAudioCodecUnsupportedFormatError );
+//        AECheckOSStatus(result, "AudioObjectSetPropertyData(kAudioDevicePropertyNominalSampleRate)");
+//        
+//        // Set the input device to the system's default input device
+//        result = AudioUnitSetProperty(_iAudioUnit, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global, outputBus, &defaultDevice, sizeof(defaultDevice));
+//        AECheckOSStatus(result, "AudioUnitSetProperty(kAudioOutputUnitProperty_CurrentDevice)");
+//    
+//        // Set input unit ASBD output to match the hardware input ASBD
+//        propertySize = sizeof(AudioStreamBasicDescription);
+//        result = AudioUnitGetProperty(_iAudioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, inputBus, &_rawInputAudioDescription, &propertySize);
+//        AECheckOSStatus(result, "AudioUnitGetProperty(kAudioUnitProperty_StreamFormat)");
+//        
+//        if ( matchingSampleRates ) {
+//            _rawInputAudioDescription.mSampleRate = _audioDescription.mSampleRate;
+//        } else {
+//            defaultDeviceProperty.mSelector = kAudioDevicePropertyNominalSampleRate;
+//            UInt32 deviceSampleRateSize = sizeof(Float64);
+//            Float64 deviceSampleRate;
+//            result = AudioObjectGetPropertyData(defaultDevice, &defaultDeviceProperty, 0, NULL, &deviceSampleRateSize, &deviceSampleRate);
+//            AECheckOSStatus(result, "AudioObjectGetPropertyData(kAudioDevicePropertyNominalSampleRate)");
+//            
+//            _rawInputAudioDescription.mSampleRate = deviceSampleRate;
+//            
+//            NSLog(@"TAAE: Warning: could not set hardware input sample rate (%.f Hz) to same sample rate as output (%.f Hz). Performing on-the-fly sample rate conversion.", deviceSampleRate, _audioDescription.mSampleRate);
+//        }
+//        
+//        propertySize = sizeof(AudioStreamBasicDescription);
+//        result = AudioUnitSetProperty(_iAudioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, inputBus, &_rawInputAudioDescription, propertySize);
+//        AECheckOSStatus(result, "AudioUnitSetProperty(kAudioUnitProperty_StreamFormat)");
+//        
+//        // Register a callback to receive audio
+//        AURenderCallbackStruct inRenderProc;
+//        inRenderProc.inputProc = &inputAvailableCallback;
+//        inRenderProc.inputProcRefCon = (__bridge void *)self;
+//        result = AudioUnitSetProperty(_iAudioUnit, kAudioOutputUnitProperty_SetInputCallback, kAudioUnitScope_Global, 0, &inRenderProc, sizeof(inRenderProc));
+//        AECheckOSStatus(result, "AudioUnitSetProperty(kAudioOutputUnitProperty_SetInputCallback)");
+//        
+//        // Initialize the input audio unit
+//        result = AudioUnitInitialize(_iAudioUnit);
+//        AECheckOSStatus(result, "AudioUnitInitialize");
+//    }
 #endif
 
     if (!_outputEnabled) {
@@ -2923,10 +2924,10 @@ static void audioUnitStreamFormatChanged(void *inRefCon, AudioUnit inUnit, Audio
                     "AudioUnitAddPropertyListener(kAudioUnitProperty_StreamFormat)");
 
 #if !TARGET_OS_IPHONE
-    if ( _inputEnabled ) {
-        AECheckOSStatus(AudioUnitSetProperty(_iAudioUnit, kAudioUnitProperty_MaximumFramesPerSlice, kAudioUnitScope_Global, 0, &kMaxFramesPerSlice, sizeof(kMaxFramesPerSlice)),
-                    "AudioUnitSetProperty(kAudioUnitProperty_MaximumFramesPerSlice)");
-    }
+//    if ( _inputEnabled ) {
+//        AECheckOSStatus(AudioUnitSetProperty(_iAudioUnit, kAudioUnitProperty_MaximumFramesPerSlice, kAudioUnitScope_Global, 0, &kMaxFramesPerSlice, sizeof(kMaxFramesPerSlice)),
+//                    "AudioUnitSetProperty(kAudioUnitProperty_MaximumFramesPerSlice)");
+//    }
 #endif
     
 #if TARGET_OS_IPHONE
