@@ -66,7 +66,7 @@ static void VRAMPMUL(const SAMPLETYPE *__vDSP_I, vDSP_Stride __vDSP_IS, SAMPLETY
     self.contentsScale = [[UIScreen mainScreen] scale];
     self.lineColor = [UIColor blackColor];
 #else
-    self.lineColor = [NSColor blackColor];
+//    self.lineColor = [NSColor blackColor];
 #endif
     
     // Disable animating view refreshes
@@ -88,17 +88,17 @@ static void VRAMPMUL(const SAMPLETYPE *__vDSP_I, vDSP_Stride __vDSP_IS, SAMPLETY
         _timer = [NSTimer scheduledTimerWithTimeInterval:1.0/30.0 target:self selector:@selector(setNeedsDisplay) userInfo:nil repeats:YES];
     }
 #else
-    if ( _displayLink ) return;
-    
-    CGDirectDisplayID displayID = CGMainDisplayID();
-    CVReturn error = kCVReturnSuccess;
-    error = CVDisplayLinkCreateWithCGDisplay(displayID, &_displayLink);
-    if ( error ) {
-        NSLog(@"DisplayLink created with error:%d", error);
-        _displayLink = NULL;
-    }
-    CVDisplayLinkSetOutputCallback(_displayLink, displayLinkRenderCallback, (__bridge void *)self);
-    CVDisplayLinkStart(_displayLink);
+//    if ( _displayLink ) return;
+//    
+//    CGDirectDisplayID displayID = CGMainDisplayID();
+//    CVReturn error = kCVReturnSuccess;
+//    error = CVDisplayLinkCreateWithCGDisplay(displayID, &_displayLink);
+//    if ( error ) {
+//        NSLog(@"DisplayLink created with error:%d", error);
+//        _displayLink = NULL;
+//    }
+//    CVDisplayLinkSetOutputCallback(_displayLink, displayLinkRenderCallback, (__bridge void *)self);
+//    CVDisplayLinkStart(_displayLink);
 #endif
 }
 
@@ -108,10 +108,10 @@ static void VRAMPMUL(const SAMPLETYPE *__vDSP_I, vDSP_Stride __vDSP_IS, SAMPLETY
     [_timer invalidate];
     _timer = nil;
 #else
-    if ( !_displayLink ) return;
-    CVDisplayLinkStop(_displayLink);
-    CVDisplayLinkRelease(_displayLink);
-    _displayLink = NULL;
+//    if ( !_displayLink ) return;
+//    CVDisplayLinkStop(_displayLink);
+//    CVDisplayLinkRelease(_displayLink);
+//    _displayLink = NULL;
 #endif
 }
 
@@ -120,19 +120,19 @@ static void VRAMPMUL(const SAMPLETYPE *__vDSP_I, vDSP_Stride __vDSP_IS, SAMPLETY
 }
 
 #if !TARGET_OS_IPHONE
-static CVReturn displayLinkRenderCallback(CVDisplayLinkRef displayLink,
-                                          const CVTimeStamp *inNow,
-                                          const CVTimeStamp *inOutputTime,
-                                          CVOptionFlags flagsIn,
-                                          CVOptionFlags *flagsOut,
-                                          void *displayLinkContext)
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [(__bridge TPOscilloscopeLayer *)displayLinkContext setNeedsDisplay];
-    });
-
-    return kCVReturnSuccess;
-}
+//static CVReturn displayLinkRenderCallback(CVDisplayLinkRef displayLink,
+//                                          const CVTimeStamp *inNow,
+//                                          const CVTimeStamp *inOutputTime,
+//                                          CVOptionFlags flagsIn,
+//                                          CVOptionFlags *flagsOut,
+//                                          void *displayLinkContext)
+//{
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        [(__bridge TPOscilloscopeLayer *)displayLinkContext setNeedsDisplay];
+//    });
+//
+//    return kCVReturnSuccess;
+//}
 #endif
 
 -(void)dealloc {
@@ -221,7 +221,7 @@ static void audioCallback(__unsafe_unretained TPOscilloscopeLayer *THIS,
         int framesToCopy = MIN(remainingFrames, kBufferLength - THIS->_buffer_head);
         
 #if CGFLOAT_IS_DOUBLE
-        vDSP_vspdp(audioPtr, 1, THIS->_buffer + THIS->_buffer_head, 1, framesToCopy);
+//        vDSP_vspdp(audioPtr, 1, THIS->_buffer + THIS->_buffer_head, 1, framesToCopy);
 #else
         memcpy(THIS->_buffer + THIS->_buffer_head, audioPtr, framesToCopy * sizeof(float));
 #endif

@@ -534,7 +534,11 @@ static OSStatus groupRenderNotifyCallback(void *inRefCon, AudioUnitRenderActionF
 }
 
 static OSStatus topRenderNotifyCallback(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inBusNumber, UInt32 inNumberFrames, AudioBufferList *ioData) {
-    
+//    static CFAbsoluteTime start = 0;
+//    CFAbsoluteTime end = CFAbsoluteTimeGetCurrent();
+//    NSLog(@"%lf", end - start);
+//    start = end;
+
     __unsafe_unretained AEAudioController *THIS = (__bridge AEAudioController *)inRefCon;
 
     if ( !__audioThread ) {
@@ -1904,7 +1908,7 @@ void AEAudioControllerSendAsynchronousMessageToMainThread(__unsafe_unretained AE
     
     if ( averagePower ) *averagePower = 20.0f * log10f(_inputLevelMonitorData.average);
     if ( peakLevel ) *peakLevel = 20.0f * log10f(_inputLevelMonitorData.peak);
-    
+
     _inputLevelMonitorData.reset = YES;
 }
 
@@ -3105,7 +3109,7 @@ static void audioUnitStreamFormatChanged(void *inRefCon, AudioUnit inUnit, Audio
     if ( numberOfInputChannels > 0 ) {
         // Update converters for input processing
         #if !TARGET_OS_IPHONE
-            rawAudioDescription = _rawInputAudioDescription;
+//            rawAudioDescription = _rawInputAudioDescription;
         #endif
         AEAudioStreamBasicDescriptionSetChannelsPerFrame(&rawAudioDescription, numberOfInputChannels);
         
@@ -3147,7 +3151,7 @@ static void audioUnitStreamFormatChanged(void *inRefCon, AudioUnit inUnit, Audio
             #if TARGET_OS_IPHONE
                 BOOL sampleRateConverterRequired = NO;
             #else
-                BOOL sampleRateConverterRequired = audioDescription.mSampleRate != _rawInputAudioDescription.mSampleRate;
+//                BOOL sampleRateConverterRequired = audioDescription.mSampleRate != _rawInputAudioDescription.mSampleRate;
             #endif
             BOOL converterRequired = sampleRateConverterRequired
                                         || audioDescription.mChannelsPerFrame != numberOfInputChannels
@@ -3400,18 +3404,18 @@ static void audioUnitStreamFormatChanged(void *inRefCon, AudioUnit inUnit, Audio
     }
     #endif
     
-    if ( inputDescriptionChanged ) {
-        if ( numberOfInputChannels > 0 ) {
-            NSLog(@"TAAE: Input status updated (%u channel, %@%@%@%@)",
-                  (unsigned int)numberOfInputChannels,
-                  usingAudiobusReceiverPort ? @"using Audiobus, " : @"",
-                  rawAudioDescription.mFormatFlags & kAudioFormatFlagIsNonInterleaved ? @"non-interleaved" : @"interleaved",
-                  [self usingVPIO] ? @", using voice processing" : @"",
-                  _inputTable->entries[0].audioConverter ? @", with converter" : @"");
-        } else {
-            NSLog(@"TAAE: Input status updated: No input available");
-        }
-    }
+//    if ( inputDescriptionChanged ) {
+//        if ( numberOfInputChannels > 0 ) {
+//            NSLog(@"TAAE: Input status updated (%u channel, %@%@%@%@)",
+//                  (unsigned int)numberOfInputChannels,
+//                  usingAudiobusReceiverPort ? @"using Audiobus, " : @"",
+//                  rawAudioDescription.mFormatFlags & kAudioFormatFlagIsNonInterleaved ? @"non-interleaved" : @"interleaved",
+//                  [self usingVPIO] ? @", using voice processing" : @"",
+//                  _inputTable->entries[0].audioConverter ? @", with converter" : @"");
+//        } else {
+//            NSLog(@"TAAE: Input status updated: No input available");
+//        }
+//    }
 }
 
 - (void)configureChannelsForGroup:(AEChannelGroupRef)group {
