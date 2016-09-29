@@ -162,6 +162,10 @@
 #pragma mark - Action Methods
 
 - (void)valueChanged:(UISlider *)slider {
+//    Float32 inputAvg;
+//    [_audioController inputAveragePowerLevel:&inputAvg peakHoldLevel:NULL];
+//    return;
+
     if (slider.tag == 0) {
         if ([(UISwitch *)slider isOn]) {
             self.lowPassFilter = [[AELowPassFilter alloc] init];
